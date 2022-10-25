@@ -1,6 +1,11 @@
 package mobile
 
-import "code.olapie.com/log"
+import (
+	"os"
+	"path/filepath"
+
+	"code.olapie.com/log"
+)
 
 type DirInfo struct {
 	Document  string
@@ -38,4 +43,21 @@ func NewTestDirInfo() *DirInfo {
 		Cache:     "testdata/cache",
 		Temporary: "testdata/temporary",
 	}
+}
+
+func GetDiskSize(path string) *Int64E {
+	res := new(Int64E)
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			res.Val += info.Size()
+		}
+		return err
+	})
+	if err != nil {
+		res.Err = ToError(err)
+	}
+	return res
 }
