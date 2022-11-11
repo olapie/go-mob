@@ -2,6 +2,7 @@ package mobile
 
 import (
 	"code.olapie.com/conv"
+	"code.olapie.com/ola/httpkit"
 	"code.olapie.com/types"
 )
 
@@ -10,7 +11,7 @@ func IsEmailAddress(s string) bool {
 }
 
 func IsURL(s string) bool {
-	return conv.IsURL(s)
+	return httpkit.IsURL(s)
 }
 
 func IsPhoneNumber(phoneNumber string) bool {
