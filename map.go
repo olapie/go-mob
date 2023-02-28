@@ -1,7 +1,7 @@
 package mob
 
 import (
-	"code.olapie.com/sugar/mob/nomobile"
+	"go.olapie.com/mob/nomobile"
 	"go.olapie.com/types"
 )
 

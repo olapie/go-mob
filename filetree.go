@@ -7,10 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"go.olapie.com/utils"
-
-	"code.olapie.com/sugar/mob/nomobile"
 	"github.com/google/uuid"
+	"go.olapie.com/mob/nomobile"
+	"go.olapie.com/utils"
 )
 
 type FileInfo interface {
