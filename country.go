@@ -1,17 +1,20 @@
-package mobile
+package mob
 
 import (
 	_ "embed"
 	"encoding/json"
-	"strings"
+	"log"
 	"sync"
-
-	"code.olapie.com/log"
-	"github.com/nyaruka/phonenumbers"
 )
 
-//go:embed resource/countries.json
+//go:embed resources/countries.json
 var countriesJSONString string
+
+type Country struct {
+	CallingCode int64  `json:"calling_code"`
+	Flag        string `json:"flag"`
+	Name        string `json:"name"`
+}
 
 func GetCountries() []*Country {
 	loadCountries()
@@ -23,10 +26,6 @@ func GetCountryByCallingCode(code int64) *Country {
 	return codeToCountry[code]
 }
 
-func GetCallingCodeByRegion(regionCode string) int {
-	return phonenumbers.GetCountryCodeForRegion(strings.ToUpper(regionCode))
-}
-
 var countries []*Country
 var codeToCountry map[int64]*Country
 var loadCountriesOnce sync.Once
@@ -34,7 +33,7 @@ var loadCountriesOnce sync.Once
 func loadCountries() {
 	loadCountriesOnce.Do(func() {
 		if err := json.Unmarshal([]byte(countriesJSONString), &countries); err != nil {
-			log.Error(err)
+			log.Println(err)
 			countries = []*Country{}
 			return
 		}

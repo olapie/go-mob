@@ -1,9 +1,9 @@
-package mobile
+package mob
 
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -62,11 +62,11 @@ func (s *Storage) UploadImage(name string, data []byte, handler ProgressHandler)
 	w := multipart.NewWriter(buf)
 	part, err := w.CreateFormFile("images", name)
 	if err != nil {
-		res.Err = ToError(err)
+		res.Error = ToError(err)
 		return res
 	}
 	if _, err = part.Write(data); err != nil {
-		res.Err = ToError(err)
+		res.Error = ToError(err)
 		return res
 	}
 	w.Close()
@@ -74,23 +74,23 @@ func (s *Storage) UploadImage(name string, data []byte, handler ProgressHandler)
 	buf.h = handler
 	resp, err := http.Post(s.imageURL, w.FormDataContentType(), buf)
 	if err != nil {
-		res.Err = ToError(err)
+		res.Error = ToError(err)
 		return res
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		res.Err = ToError(err)
+		res.Error = ToError(err)
 		return res
 	}
 	resp.Body.Close()
 	var url string
 	if err = json.Unmarshal(body, &url); err != nil {
-		res.Err = ToError(err)
+		res.Error = ToError(err)
 		return res
 	}
-	res.Val = url
+	res.Value = url
 	if s.handler != nil {
-		s.handler.CacheImage(res.Val, data)
+		s.handler.CacheImage(res.Value, data)
 		s.Delete(name)
 	}
 	return res
@@ -98,8 +98,8 @@ func (s *Storage) UploadImage(name string, data []byte, handler ProgressHandler)
 
 func (s *Storage) Save(data []byte) *StringE {
 	res := new(StringE)
-	res.Val = uuid.NewString()
-	res.Err = ToError(os.WriteFile(s.GetFilePath(res.Val), data, 0644))
+	res.Value = uuid.NewString()
+	res.Error = ToError(os.WriteFile(s.GetFilePath(res.Value), data, 0644))
 	return res
 }
 

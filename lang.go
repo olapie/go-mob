@@ -1,10 +1,9 @@
-package mobile
+package mob
 
 import (
+	"log"
 	"os"
 	"strings"
-
-	"code.olapie.com/log"
 )
 
 type langT int
@@ -19,7 +18,7 @@ var lang langT = english
 
 func SetLang(l string) {
 	if err := os.Setenv("LANG", l); err != nil {
-		log.S().Errorf("Cannot set env:lang=%s, %v", lang, err)
+		log.Println("cannot set os lang", err)
 	}
 	l = strings.ToLower(l)
 	strings.Replace(l, "-", "_", -1)

@@ -1,22 +1,34 @@
-package mobile
+package mob
 
 import (
+	"net/mail"
 	"strings"
 	"unicode"
+
+	"go.olapie.com/times"
+	"go.olapie.com/utils"
 )
 
-const ListSize int = 20
+func IsEmailAddress(s string) bool {
+	_, err := mail.ParseAddress(s)
+	return err == nil
+}
 
-const (
-	VerificationCodeLen int = 6
-	MinPasswordLen      int = 6
-	MaxNickLen          int = 20
-	MinUsernameLen      int = 4
-	MaxUsernameLen      int = 20
-	MaxPostTitleLen     int = 40
+func IsURL(s string) bool {
+	return utils.IsURL(s)
+}
+
+func IsDate(s string) bool {
+	return times.IsDate(s)
+}
+
+var (
+	MinPasswordLen int = 6
+	MinUsernameLen int = 4
+	MaxUsernameLen int = 20
 )
 
-func ValidatePassword(password string) bool {
+func IsValidPassword(password string) bool {
 	if len(password) < MinPasswordLen {
 		return false
 	}
@@ -33,7 +45,7 @@ func ValidatePassword(password string) bool {
 	return hasDigit && hasAlpha
 }
 
-func ValidateUsername(username string) bool {
+func IsValidUsername(username string) bool {
 	username = strings.ToLower(username)
 	s := []rune(username)
 	if len(s) > MaxUsernameLen {

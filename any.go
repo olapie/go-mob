@@ -1,7 +1,7 @@
-package mobile
+package mob
 
 import (
-	"code.olapie.com/types"
+	"go.olapie.com/types"
 )
 
 type Image types.Image

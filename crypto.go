@@ -1,23 +1,23 @@
-package mobile
+package mob
 
-import "code.olapie.com/cryptokit"
+import "go.olapie.com/security"
 
 func Encrypt(data []byte, passphrase string) []byte {
-	content, _ := cryptokit.Encrypt(data, passphrase)
+	content, _ := security.Encrypt(data, passphrase)
 	return content
 }
 
 func Decrypt(data []byte, passphrase string) []byte {
-	content, _ := cryptokit.Decrypt(data, passphrase)
+	content, _ := security.Encrypt(data, passphrase)
 	return content
 }
 
-func EncryptFile(dst, src, passphrase string) bool {
-	err := cryptokit.EncryptFile(cryptokit.Destination(dst), cryptokit.Source(src), passphrase)
+func EncryptFile(src, dst, passphrase string) bool {
+	err := security.EncryptFile(security.SF(src), security.DF(dst), passphrase)
 	return err == nil
 }
 
-func DecryptFile(dst, src, passphrase string) bool {
-	err := cryptokit.DecryptFile(cryptokit.Destination(dst), cryptokit.Source(src), passphrase)
+func DecryptFile(src, dst, passphrase string) bool {
+	err := security.DecryptFile(security.SF(src), security.DF(dst), passphrase)
 	return err == nil
 }

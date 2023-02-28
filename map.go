@@ -1,7 +1,8 @@
-package mobile
+package mob
 
 import (
-	"code.olapie.com/types"
+	"code.olapie.com/sugar/mob/nomobile"
+	"go.olapie.com/types"
 )
 
 type Map struct {
@@ -31,9 +32,10 @@ func (m *Map) GetBool(key string) bool {
 func (m *Map) GetInt64List(key string) *Int64List {
 	switch v := m.m[key].(type) {
 	case []int64:
-		l := NewInt64List()
-		l.Elements = v
-		return l
+		l := nomobile.NewList(v)
+		return &Int64List{
+			List: *l,
+		}
 	case *Int64List:
 		return v
 	default:
@@ -44,23 +46,15 @@ func (m *Map) GetInt64List(key string) *Int64List {
 func (m *Map) GetStringList(key string) *StringList {
 	switch v := m.m[key].(type) {
 	case []string:
-		l := new(StringList)
-		l.Elements = v
-		return l
+		l := nomobile.NewList(v)
+		return &StringList{
+			List: *l,
+		}
 	case *StringList:
 		return v
 	default:
 		return nil
 	}
-}
-
-func (m *Map) GetPhoneNumber(key string) *types.PhoneNumber {
-	return m.m.PhoneNumber(key)
-}
-
-func (m *Map) GetLocation(key string) *Point {
-	v, _ := m.m[key].(*Point)
-	return v
 }
 
 func (m *Map) SetInt64(key string, val int64) {
@@ -79,22 +73,10 @@ func (m *Map) SetBool(key string, val bool) {
 	m.m[key] = val
 }
 
-func (m *Map) SetPhoneNumber(key string, val *types.PhoneNumber) {
-	m.m[key] = val
+func (m *Map) SetInt64List(key string, val *Int64List) {
+	m.m[key] = val.Elements()
 }
 
-func (m *Map) SetInt64s(key string, val *Int64List) {
-	m.m[key] = val.Elements
-}
-
-func (m *Map) SetStrings(key string, val *StringList) {
-	m.m[key] = val.Elements
-}
-
-func (m *Map) SetLocation(key string, val *Point) {
-	m.m[key] = val
-}
-
-func (m *Map) M() types.M {
-	return m.m
+func (m *Map) SetStringList(key string, val *StringList) {
+	m.m[key] = val.Elements()
 }

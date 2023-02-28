@@ -1,7 +1,7 @@
-package mobile
+package mob
 
 import (
-	"code.olapie.com/types"
+	"go.olapie.com/types"
 )
 
 type Point types.Point
@@ -22,16 +22,4 @@ func (p *Place) SetCoordinate(c *Point) {
 
 func (p *Place) GetCoordinate() *Point {
 	return (*Point)(p.Coordinate)
-}
-
-type Country types.Country
-
-func GetCountryList() *CountryList {
-	l := GetCountries()
-	ll := new(CountryList)
-	ll.Elements = make([]*Country, len(l))
-	for i, c := range l {
-		ll.Elements[i] = (*Country)(c)
-	}
-	return ll
 }

@@ -1,4 +1,4 @@
-package mobile
+package mob
 
 import (
 	"net/http"

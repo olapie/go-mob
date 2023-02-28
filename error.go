@@ -1,32 +1,21 @@
-package mobile
+package mob
 
 import (
-	"fmt"
+	"errors"
 	"reflect"
 
-	"code.olapie.com/errors"
-	"google.golang.org/grpc/status"
+	"go.olapie.com/types"
+	"go.olapie.com/utils"
 )
 
-type Error errors.Error
-
-func (e *Error) Error() string {
-	return e.Message
-}
-
-func (e *Error) String() string {
-	return fmt.Sprintf("code=%d, message=%s", e.Code, e.Message)
+type Error struct {
+	types.Error
 }
 
 func NewError(code int, message string) *Error {
 	return &Error{
-		Code:    code,
-		Message: message,
+		*types.NewError(code, message),
 	}
-}
-
-func NewClientError(message string) *Error {
-	return NewError(-1, message)
 }
 
 func ToError(err error) *Error {
@@ -38,21 +27,11 @@ func ToError(err error) *Error {
 		return nil
 	}
 
-	cause := errors.Cause(err)
-	if e, ok := cause.(*Error); ok && e != nil {
-		return NewError((*errors.Error)(e).Code, err.Error())
+	var e *Error
+	if errors.As(err, &e) {
+		return e
 	}
 
-	if e, ok := cause.(*errors.Error); ok && e != nil {
-		return NewError(e.Code, e.Message)
-	}
-
-	if st, ok := status.FromError(err); ok {
-		if e := errors.FromString(st.Message()); e != nil {
-			return NewError(e.Code, e.Message)
-		}
-		return NewError(int(st.Code()), st.Message())
-	}
-
-	return NewError(0, err.Error())
+	code := utils.GetErrorCode(err)
+	return NewError(code, err.Error())
 }
