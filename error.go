@@ -8,16 +8,24 @@ import (
 	"go.olapie.com/utils"
 )
 
-type Error struct {
-	types.Error
-}
+type Error types.Error
 
 var _ error = (*Error)(nil)
 
 func NewError(code int, message string) *Error {
-	return &Error{
-		*types.NewError(code, message),
-	}
+	return (*Error)(types.NewError(code, message))
+}
+
+func (e *Error) Code() int {
+	return (*types.Error)(e).Code()
+}
+
+func (e *Error) Message() string {
+	return (*types.Error)(e).Message()
+}
+
+func (e *Error) Error() string {
+	return (*types.Error)(e).Error()
 }
 
 func ToError(err error) *Error {
