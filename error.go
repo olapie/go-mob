@@ -12,6 +12,8 @@ type Error struct {
 	types.Error
 }
 
+var _ error = (*Error)(nil)
+
 func NewError(code int, message string) *Error {
 	return &Error{
 		*types.NewError(code, message),
