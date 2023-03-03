@@ -3,7 +3,7 @@ BUILD_DIR="$SCRIPT_DIR/build/ios"
 IOS_FRAMEWORK="$BUILD_DIR"/mobilex.xcframework
 
 MODULES="
-code.olapie.com/sugar/mobilex
+go.olapie.com/mob
 "
 
 rm -rf "$BUILD_DIR"
