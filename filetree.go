@@ -35,6 +35,7 @@ type FileInfo interface {
 
 	Move(id, dirID string)
 	Find(id string) FileInfo
+	FindByName(name string, recursive bool) FileInfo
 
 	SortSubsByModTime(asc bool)
 	SortSubsByName(asc bool)
@@ -85,6 +86,30 @@ type FileTreeNode struct {
 	files  []*FileTreeNode
 }
 
+func (f *FileTreeNode) FindByName(name string, recursive bool) FileInfo {
+	for _, fi := range f.files {
+		if fi.Name() == name {
+			return fi
+		}
+	}
+
+	for _, dir := range f.dirs {
+		if dir.Name() == name {
+			return dir
+		}
+	}
+
+	if recursive {
+		for _, dir := range f.dirs {
+			if fi := dir.FindByName(name, recursive); fi != nil {
+				return fi
+			}
+		}
+	}
+
+	return nil
+}
+
 func (f *FileTreeNode) Entry() nomobile.FileEntry {
 	return f.entry
 }
@@ -100,23 +125,23 @@ func (f *FileTreeNode) GetID() string {
 	return f.entry.GetID()
 }
 
-func (f FileTreeNode) Name() string {
+func (f *FileTreeNode) Name() string {
 	return f.entry.Name()
 }
 
-func (f FileTreeNode) IsDir() bool {
+func (f *FileTreeNode) IsDir() bool {
 	return f.entry.IsDir()
 }
 
-func (f FileTreeNode) Size() int64 {
+func (f *FileTreeNode) Size() int64 {
 	return f.entry.Size()
 }
 
-func (f FileTreeNode) ModTime() int64 {
+func (f *FileTreeNode) ModTime() int64 {
 	return f.entry.ModTime()
 }
 
-func (f FileTreeNode) MIMEType() string {
+func (f *FileTreeNode) MIMEType() string {
 	return f.entry.MIMEType()
 }
 
