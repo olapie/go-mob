@@ -86,30 +86,6 @@ type FileTreeNode struct {
 	files  []*FileTreeNode
 }
 
-func (f *FileTreeNode) FindByName(name string, recursive bool) FileInfo {
-	for _, fi := range f.files {
-		if fi.Name() == name {
-			return fi
-		}
-	}
-
-	for _, dir := range f.dirs {
-		if dir.Name() == name {
-			return dir
-		}
-	}
-
-	if recursive {
-		for _, dir := range f.dirs {
-			if fi := dir.FindByName(name, recursive); fi != nil {
-				return fi
-			}
-		}
-	}
-
-	return nil
-}
-
 func (f *FileTreeNode) Entry() nomobile.FileEntry {
 	return f.entry
 }
@@ -233,6 +209,30 @@ func (f *FileTreeNode) Find(id string) FileInfo {
 	for _, dir := range f.dirs {
 		if fi := dir.Find(id); fi != nil {
 			return fi
+		}
+	}
+
+	return nil
+}
+
+func (f *FileTreeNode) FindByName(name string, recursive bool) FileInfo {
+	for _, fi := range f.files {
+		if fi.Name() == name {
+			return fi
+		}
+	}
+
+	for _, dir := range f.dirs {
+		if dir.Name() == name {
+			return dir
+		}
+	}
+
+	if recursive {
+		for _, dir := range f.dirs {
+			if fi := dir.FindByName(name, recursive); fi != nil {
+				return fi
+			}
 		}
 	}
 
