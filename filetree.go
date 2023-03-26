@@ -38,7 +38,7 @@ type DirInfo interface {
 type FileInfo interface {
 	// GetID is friendly to swift syntax
 	GetID() string
-	ParentID() string
+	Parent() DirInfo
 	Name() string
 	Size() int64
 	ModTime() int64
@@ -94,11 +94,11 @@ func (f *FileTreeNode) Entry() nomobile.FileEntry {
 	return f.entry
 }
 
-func (f *FileTreeNode) ParentID() string {
+func (f *FileTreeNode) Parent() DirInfo {
 	if f.parent == nil {
-		return ""
+		return nil
 	}
-	return f.parent.GetID()
+	return f.parent.AsDir()
 }
 
 func (f *FileTreeNode) GetID() string {
@@ -238,7 +238,7 @@ func (f *FileTreeNode) Move(fileID, dirID string) bool {
 		return false
 	}
 
-	if fi.ParentID() == dirID {
+	if fi.Parent() != nil && fi.Parent().GetID() == dirID {
 		return true
 	}
 
