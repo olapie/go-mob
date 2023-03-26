@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-type DirInfo struct {
+type AppDirectories struct {
 	Document  string
 	Cache     string
 	Temporary string
 }
 
-func (d *DirInfo) MustMakeDirs() {
+func (d *AppDirectories) MustMake() {
 	if d.Document != "" {
 		MustMkdir(d.Document)
 	} else {
@@ -33,7 +33,7 @@ func (d *DirInfo) MustMakeDirs() {
 	}
 }
 
-func (d *DirInfo) Normalize() {
+func (d *AppDirectories) Normalize() {
 	filePrefix := "file:"
 	a := []*string{&d.Document, &d.Cache, &d.Temporary}
 	for _, p := range a {
@@ -45,12 +45,12 @@ func (d *DirInfo) Normalize() {
 	}
 }
 
-func NewDirInfo() *DirInfo {
-	return new(DirInfo)
+func NewAppDirectories() *AppDirectories {
+	return new(AppDirectories)
 }
 
-func NewTestDirInfo() *DirInfo {
-	return &DirInfo{
+func NewTestAppDirectories() *AppDirectories {
+	return &AppDirectories{
 		Document:  "testdata/document",
 		Cache:     "testdata/cache",
 		Temporary: "testdata/temporary",

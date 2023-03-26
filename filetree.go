@@ -1,7 +1,6 @@
 package mob
 
 import (
-	"fmt"
 	"log"
 	"sort"
 	"strings"
@@ -12,33 +11,39 @@ import (
 	"go.olapie.com/utils"
 )
 
+type SortFieldType = int
+
+const (
+	SortByModTime SortFieldType = iota
+	SortByName
+)
+
+type DirInfo interface {
+	FileInfo
+	NumFile() int
+	File(i int) FileInfo
+
+	InsertAt(f FileInfo, index int)
+	Remove(fileID string) bool
+
+	Move(fileID, dirID string) bool
+	FileByID(id string, recursive bool) FileInfo
+	FileByName(name string, recursive bool) FileInfo
+
+	Sort(field SortFieldType, asc bool)
+
+	ReadFiles(typ FileType) *FileInfoList
+}
+
 type FileInfo interface {
-	ParentID() string
+	// GetID is friendly to swift syntax
 	GetID() string
+	ParentID() string
 	Name() string
-	IsDir() bool
 	Size() int64
 	ModTime() int64
 	MIMEType() string
-
-	SubsCount() int
-	GetSub(i int) FileInfo
-
-	DirsCount() int
-	GetDir(i int) FileInfo
-
-	FilesCount() int
-	GetFile(i int) FileInfo
-
-	AddSub(sub FileInfo, appendFlag bool)
-	RemoveSub(sub FileInfo)
-
-	Move(id, dirID string)
-	Find(id string) FileInfo
-	FindByName(name string, recursive bool) FileInfo
-
-	SortSubsByModTime(asc bool)
-	SortSubsByName(asc bool)
+	AsDir() DirInfo
 }
 
 var _ FileInfo = (*FileTreeNode)(nil)
@@ -82,7 +87,6 @@ func (v *virtualEntry) SubIDs() []string {
 type FileTreeNode struct {
 	entry  nomobile.FileEntry
 	parent *FileTreeNode
-	dirs   []*FileTreeNode
 	files  []*FileTreeNode
 }
 
@@ -105,8 +109,11 @@ func (f *FileTreeNode) Name() string {
 	return f.entry.Name()
 }
 
-func (f *FileTreeNode) IsDir() bool {
-	return f.entry.IsDir()
+func (f *FileTreeNode) AsDir() DirInfo {
+	if f.entry.IsDir() {
+		return f
+	}
+	return nil
 }
 
 func (f *FileTreeNode) Size() int64 {
@@ -121,81 +128,66 @@ func (f *FileTreeNode) MIMEType() string {
 	return f.entry.MIMEType()
 }
 
-func (f *FileTreeNode) SubsCount() int {
-	return len(f.dirs) + len(f.files)
-}
-
-func (f *FileTreeNode) GetSub(i int) FileInfo {
-	if i < len(f.dirs) {
-		return f.dirs[i]
-	}
-	return f.files[i-len(f.dirs)]
-}
-
-func (f *FileTreeNode) DirsCount() int {
-	return len(f.dirs)
-}
-
-func (f *FileTreeNode) GetDir(i int) FileInfo {
-	return f.dirs[i]
-}
-
-func (f *FileTreeNode) FilesCount() int {
+func (f *FileTreeNode) NumFile() int {
 	return len(f.files)
 }
 
-func (f *FileTreeNode) GetFile(i int) FileInfo {
+func (f *FileTreeNode) File(i int) FileInfo {
 	return f.files[i]
 }
 
-func (f *FileTreeNode) AddSub(sub FileInfo, appendFlag bool) {
-	node := sub.(*FileTreeNode)
-	if node.parent != nil {
-		panic(fmt.Sprintf("%s is in dir %s", node.GetID(), node.parent.GetID()))
+func (f *FileTreeNode) ReadFiles(typ FileType) *FileInfoList {
+	l := new(FileInfoList)
+	for _, sub := range f.files {
+		if GetFileType(sub) == typ {
+			l.List = append(l.List, sub)
+		}
 	}
-	if node.IsDir() {
-		if appendFlag {
-			f.dirs = append(f.dirs, node)
-		} else {
-			f.dirs = append([]*FileTreeNode{node}, f.dirs...)
-		}
+	return l
+}
+
+func (f *FileTreeNode) InsertAt(sub FileInfo, index int) {
+	node := sub.(*FileTreeNode)
+	if node.FileByID(f.GetID(), true) != nil {
+		panic("recycle file reference")
+	}
+
+	if node.parent != nil {
+		node.parent.Remove(node.GetID())
+		node.parent = nil
+	}
+
+	if index <= 0 {
+		f.files = append([]*FileTreeNode{node}, f.files...)
+	} else if index >= len(f.files) {
+		f.files = append(f.files, node)
 	} else {
-		if appendFlag {
-			f.files = append(f.files, node)
-		} else {
-			f.files = append([]*FileTreeNode{node}, f.files...)
-		}
+		f.files = append(f.files, node)
+		copy(f.files[index+1:], f.files[index:len(f.files)-1])
+		f.files[index] = node
 	}
 	node.parent = f
 }
 
-func (f *FileTreeNode) RemoveSub(sub FileInfo) {
-	node := sub.(*FileTreeNode)
-	node.parent = nil
-	for i, v := range f.dirs {
-		if v.GetID() == node.GetID() {
-			f.dirs = append(f.dirs[:i], f.dirs[i+1:]...)
-			return
-		}
-	}
-
+func (f *FileTreeNode) Remove(id string) bool {
 	for i, v := range f.files {
-		if v.GetID() == node.GetID() {
+		if v.GetID() == id {
+			v.parent = nil
 			f.files = append(f.files[:i], f.files[i+1:]...)
-			return
+			return true
+		}
+
+		if dir := v.AsDir(); dir != nil {
+			if dir.Remove(id) {
+				return true
+			}
 		}
 	}
+	return false
 }
 
-// Move file id to directory
-func (f *FileTreeNode) Move(id, dirID string) {
-	fi := f.Find(id)
-	f.RemoveSub(fi)
-	f.Find(dirID).(*FileTreeNode).AddSub(fi, true)
-}
-
-// Find searches a descendant node
-func (f *FileTreeNode) Find(id string) FileInfo {
+// FileByID searches a descendant node
+func (f *FileTreeNode) FileByID(id string, recursive bool) FileInfo {
 	if f.GetID() == id {
 		return f
 	}
@@ -204,34 +196,10 @@ func (f *FileTreeNode) Find(id string) FileInfo {
 		if fi.GetID() == id {
 			return fi
 		}
-	}
 
-	for _, dir := range f.dirs {
-		if fi := dir.Find(id); fi != nil {
-			return fi
-		}
-	}
-
-	return nil
-}
-
-func (f *FileTreeNode) FindByName(name string, recursive bool) FileInfo {
-	for _, fi := range f.files {
-		if fi.Name() == name {
-			return fi
-		}
-	}
-
-	for _, dir := range f.dirs {
-		if dir.Name() == name {
-			return dir
-		}
-	}
-
-	if recursive {
-		for _, dir := range f.dirs {
-			if fi := dir.FindByName(name, recursive); fi != nil {
-				return fi
+		if dir := fi.AsDir(); dir != nil && recursive {
+			if sub := dir.FileByID(id, recursive); sub != nil {
+				return sub
 			}
 		}
 	}
@@ -239,17 +207,68 @@ func (f *FileTreeNode) FindByName(name string, recursive bool) FileInfo {
 	return nil
 }
 
-func (f *FileTreeNode) SortSubsByModTime(asc bool) {
-	for _, dir := range f.dirs {
-		dir.SortSubsByModTime(asc)
-	}
-	sort.Slice(f.dirs, func(i, j int) bool {
-		fi, fj := f.dirs[i], f.dirs[j]
-		if fi.ModTime() == fj.ModTime() {
-			return strings.ToLower(fi.Name()) < strings.ToLower(fj.Name())
+func (f *FileTreeNode) FileByName(name string, recursive bool) FileInfo {
+	for _, fi := range f.files {
+		if fi.Name() == name {
+			return fi
 		}
-		return asc == (fi.ModTime() < fj.ModTime())
-	})
+		if dir := fi.AsDir(); dir != nil && recursive {
+			if sub := dir.FileByName(name, recursive); sub != nil {
+				return sub
+			}
+		}
+	}
+	return nil
+}
+
+func (f *FileTreeNode) DirInfo() DirInfo {
+	if f.entry.IsDir() {
+		return f
+	}
+	return nil
+}
+
+func (f *FileTreeNode) Move(fileID, dirID string) bool {
+	fi := f.FileByID(fileID, true)
+	if fi == nil {
+		return false
+	}
+
+	if fi.ParentID() == dirID {
+		return true
+	}
+
+	dirFile := f.FileByID(dirID, true)
+	if dirFile == nil {
+		return false
+	}
+
+	dir := dirFile.AsDir()
+	if dir == nil {
+		return false
+	}
+	dir.InsertAt(fi, dir.NumFile()+1)
+	return true
+}
+
+func (f *FileTreeNode) Sort(typ SortFieldType, asc bool) {
+	switch typ {
+	case SortByName:
+		f.sortSubsByName(asc)
+	case SortByModTime:
+		f.sortSubsByModTime(asc)
+	default:
+		log.Println("unsupported type", typ)
+		break
+	}
+}
+
+func (f *FileTreeNode) sortSubsByModTime(asc bool) {
+	for _, fi := range f.files {
+		if fi.AsDir() != nil {
+			fi.sortSubsByModTime(asc)
+		}
+	}
 
 	sort.Slice(f.files, func(i, j int) bool {
 		fi, fj := f.files[i], f.files[j]
@@ -260,17 +279,12 @@ func (f *FileTreeNode) SortSubsByModTime(asc bool) {
 	})
 }
 
-func (f *FileTreeNode) SortSubsByName(asc bool) {
-	for _, dir := range f.dirs {
-		dir.SortSubsByName(asc)
-	}
-	sort.Slice(f.dirs, func(i, j int) bool {
-		fi, fj := f.dirs[i], f.dirs[j]
-		if fi.Name() == fj.Name() {
-			return asc == (fi.ModTime() < fj.ModTime())
+func (f *FileTreeNode) sortSubsByName(asc bool) {
+	for _, fi := range f.files {
+		if fi.AsDir() != nil {
+			fi.sortSubsByName(asc)
 		}
-		return asc == (fi.Name() == fj.Name())
-	})
+	}
 
 	sort.Slice(f.files, func(i, j int) bool {
 		fi, fj := f.files[i], f.files[j]
@@ -314,15 +328,11 @@ func BuildFileTree(entries []nomobile.FileEntry) FileInfo {
 
 	for _, node := range idToNode {
 		if node.parent == nil {
-			if node.IsDir() {
-				root.dirs = append(root.dirs, node)
-			} else {
-				root.files = append(root.files, node)
-			}
+			root.files = append(root.files, node)
 		}
 	}
 
-	root.SortSubsByModTime(false)
+	root.Sort(SortByModTime, false)
 	return root
 }
 
@@ -330,7 +340,7 @@ func buildFileTreeNode(parent *FileTreeNode, id string, idToEntry map[string]nom
 	node := result[id]
 	if node != nil {
 		if parent != nil {
-			parent.AddSub(node, true)
+			parent.InsertAt(node, parent.NumFile()+1)
 		}
 		return
 	}
@@ -346,10 +356,10 @@ func buildFileTreeNode(parent *FileTreeNode, id string, idToEntry map[string]nom
 		entry: entry,
 	}
 	if parent != nil {
-		parent.AddSub(node, true)
+		parent.InsertAt(node, parent.NumFile()+1)
 	}
 	result[node.GetID()] = node
-	if !node.IsDir() {
+	if node.AsDir() == nil {
 		return
 	}
 
@@ -417,4 +427,55 @@ func NewMockFileInfo(isDir bool) FileInfo {
 			modTime: time.Now().Unix(),
 		},
 	}
+}
+
+type FileInfoList struct {
+	List []FileInfo
+}
+
+func NewFileInfoList() *FileInfoList {
+	return new(FileInfoList)
+}
+
+func (l *FileInfoList) Len() int {
+	return len(l.List)
+}
+
+func (l *FileInfoList) Get(i int) FileInfo {
+	return l.List[i]
+}
+
+type FileType = string
+
+const (
+	FiletypeDir     FileType = "dir"
+	FileTypeText    FileType = "text"
+	FileTypeAudio   FileType = "audio"
+	FileTypeVideo   FileType = "video"
+	FileTypeImage   FileType = "image"
+	FileTypeUnknown FileType = "unknown"
+)
+
+func GetFileType(f FileInfo) string {
+	if f.AsDir() != nil {
+		return FiletypeDir
+	}
+
+	if IsMIMEAudio(f.MIMEType()) {
+		return FileTypeAudio
+	}
+
+	if IsMIMEVideo(f.MIMEType()) {
+		return FileTypeVideo
+	}
+
+	if IsMIMEImage(f.MIMEType()) {
+		return FileTypeImage
+	}
+
+	if IsMIMEText(f.MIMEType()) {
+		return FileTypeText
+	}
+
+	return FileTypeUnknown
 }
