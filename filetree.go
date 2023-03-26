@@ -449,6 +449,10 @@ func (l *FileInfoList) Get(i int) FileInfo {
 	return l.List[i]
 }
 
+func (l *FileInfoList) Delete(i int) {
+	l.List = append(l.List[:i], l.List[i+1:]...)
+}
+
 type FileType = int64
 
 const (
