@@ -188,7 +188,7 @@ func (f *FileTreeNode) Remove(id string) bool {
 
 // FileByID searches a descendant node
 func (f *FileTreeNode) FileByID(id string, recursive bool) FileInfo {
-	if f.GetID() == id {
+	if id != "" && f.GetID() == id {
 		return f
 	}
 
@@ -202,6 +202,10 @@ func (f *FileTreeNode) FileByID(id string, recursive bool) FileInfo {
 				return sub
 			}
 		}
+	}
+
+	if f.GetID() == id {
+		return f
 	}
 
 	return nil
