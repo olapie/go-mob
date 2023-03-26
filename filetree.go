@@ -310,7 +310,7 @@ func FileInfoFromEntry(entry nomobile.FileEntry) FileInfo {
 	}
 }
 
-func BuildFileTree(entries []nomobile.FileEntry) FileInfo {
+func BuildFileTree(entries []nomobile.FileEntry) DirInfo {
 	root := NewVirtualDir("", "").(*FileTreeNode)
 	if len(entries) == 0 {
 		return root
