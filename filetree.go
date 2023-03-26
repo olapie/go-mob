@@ -139,11 +139,7 @@ func (f *FileTreeNode) File(i int) FileInfo {
 func (f *FileTreeNode) ReadFiles(typ FileType) *FileInfoList {
 	l := new(FileInfoList)
 	for _, sub := range f.files {
-		if typ == FileTypeFile {
-			if GetFileType(sub) != FileTypeDir {
-				l.List = append(l.List, sub)
-			}
-		} else if GetFileType(sub) == typ {
+		if GetFileType(sub)&typ != 0 {
 			l.List = append(l.List, sub)
 		}
 	}
@@ -152,7 +148,7 @@ func (f *FileTreeNode) ReadFiles(typ FileType) *FileInfoList {
 
 func (f *FileTreeNode) InsertAt(sub FileInfo, index int) {
 	node := sub.(*FileTreeNode)
-	if node.FileByID(f.GetID(), true) != nil {
+	if sub.GetID() != "" && node.FileByID(f.GetID(), true) != nil {
 		panic("recycle file reference")
 	}
 
@@ -449,20 +445,20 @@ func (l *FileInfoList) Get(i int) FileInfo {
 	return l.List[i]
 }
 
-type FileType = string
+type FileType = int64
 
 const (
-	FileTypeDir  FileType = "dir"
-	FileTypeFile FileType = "file"
+	FileTypeDir FileType = 1 << iota
+	FileTypeText
+	FileTypeAudio
+	FileTypeVideo
+	FileTypeImage
+	FileTypeUnknown
 
-	FileTypeText    FileType = "text"
-	FileTypeAudio   FileType = "audio"
-	FileTypeVideo   FileType = "video"
-	FileTypeImage   FileType = "image"
-	FileTypeUnknown FileType = "unknown"
+	FileTypeNotDir = FileTypeText | FileTypeAudio | FileTypeVideo | FileTypeImage | FileTypeUnknown
 )
 
-func GetFileType(f FileInfo) string {
+func GetFileType(f FileInfo) FileType {
 	if f.AsDir() != nil {
 		return FileTypeDir
 	}
