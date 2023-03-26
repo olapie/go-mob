@@ -139,7 +139,11 @@ func (f *FileTreeNode) File(i int) FileInfo {
 func (f *FileTreeNode) ReadFiles(typ FileType) *FileInfoList {
 	l := new(FileInfoList)
 	for _, sub := range f.files {
-		if GetFileType(sub) == typ {
+		if typ == FileTypeFile {
+			if GetFileType(sub) != FileTypeDir {
+				l.List = append(l.List, sub)
+			}
+		} else if GetFileType(sub) == typ {
 			l.List = append(l.List, sub)
 		}
 	}
@@ -295,7 +299,7 @@ func (f *FileTreeNode) sortSubsByName(asc bool) {
 	})
 }
 
-func NewVirtualDir(id, name string) FileInfo {
+func NewVirtualDir(id, name string) DirInfo {
 	return &FileTreeNode{
 		entry: &virtualEntry{
 			ID:        id,
@@ -448,7 +452,9 @@ func (l *FileInfoList) Get(i int) FileInfo {
 type FileType = string
 
 const (
-	FiletypeDir     FileType = "dir"
+	FileTypeDir  FileType = "dir"
+	FileTypeFile FileType = "file"
+
 	FileTypeText    FileType = "text"
 	FileTypeAudio   FileType = "audio"
 	FileTypeVideo   FileType = "video"
@@ -458,7 +464,7 @@ const (
 
 func GetFileType(f FileInfo) string {
 	if f.AsDir() != nil {
-		return FiletypeDir
+		return FileTypeDir
 	}
 
 	if IsMIMEAudio(f.MIMEType()) {
