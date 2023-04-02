@@ -1,6 +1,8 @@
 package mob
 
 import (
+	"github.com/gabriel-vasile/mimetype"
+	"mime"
 	"strings"
 
 	"go.olapie.com/rpcx/httpx"
@@ -36,4 +38,16 @@ func IsMIMEVideo(t string) bool {
 
 func IsMIMEAudio(t string) bool {
 	return strings.HasPrefix(t, "audio")
+}
+
+func ExtensionByMIMEType(mimeType string) string {
+	if m := mimetype.Lookup(mimeType); m != nil && m.Extension() != "" {
+		return m.Extension()
+	}
+
+	exts, err := mime.ExtensionsByType(mimeType)
+	if err != nil || len(exts) == 0 {
+		return ""
+	}
+	return exts[0]
 }

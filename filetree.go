@@ -235,20 +235,24 @@ func (f *FileTreeNode) DirInfo() DirInfo {
 func (f *FileTreeNode) Move(fileID, dirID string) bool {
 	fi := f.FileByID(fileID, true)
 	if fi == nil {
+		log.Println("Move: no file", fileID)
 		return false
 	}
 
 	if fi.Parent() != nil && fi.Parent().GetID() == dirID {
+		log.Println("Move: already in dir", dirID)
 		return true
 	}
 
 	dirFile := f.FileByID(dirID, true)
 	if dirFile == nil {
+		log.Println("Move: no dir", dirID)
 		return false
 	}
 
 	dir := dirFile.AsDir()
 	if dir == nil {
+		log.Println("Move: cannot convert to dir", dirID)
 		return false
 	}
 	dir.InsertAt(fi, dir.NumFile()+1)
@@ -333,6 +337,7 @@ func BuildFileTree(entries []nomobile.FileEntry) DirInfo {
 	for _, node := range idToNode {
 		if node.parent == nil {
 			root.files = append(root.files, node)
+			node.parent = root
 		}
 	}
 
