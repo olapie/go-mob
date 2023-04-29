@@ -233,6 +233,11 @@ func (f *FileTreeNode) DirInfo() DirInfo {
 }
 
 func (f *FileTreeNode) Move(fileID, dirID string) bool {
+	if fileID == dirID {
+		log.Printf("Move: same file %s, %s\n", fileID, dirID)
+		return false
+	}
+
 	fi := f.FileByID(fileID, true)
 	if fi == nil {
 		log.Println("Move: no file", fileID)
@@ -242,6 +247,13 @@ func (f *FileTreeNode) Move(fileID, dirID string) bool {
 	if fi.Parent() != nil && fi.Parent().GetID() == dirID {
 		log.Println("Move: already in dir", dirID)
 		return true
+	}
+
+	if fiDir := fi.AsDir(); fiDir != nil {
+		if fiDir.FileByID(dirID, true) != nil {
+			log.Printf("Move: %s is under %s\n", dirID, fileID)
+			return false
+		}
 	}
 
 	dirFile := f.FileByID(dirID, true)
