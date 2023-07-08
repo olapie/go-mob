@@ -1,9 +1,11 @@
 package mob
 
 import (
+	"fmt"
 	"net"
 	"time"
 
+	"go.olapie.com/mob/nomobile"
 	"go.olapie.com/utils"
 )
 
@@ -50,4 +52,51 @@ func checkNetwork(ips ...string) bool {
 		}
 	}
 	return false
+}
+
+type IFace struct {
+	Name         string
+	MTU          int
+	Flags        string
+	HardwareAddr string
+	Addrs        *StringList
+}
+
+type IFaceList struct {
+	nomobile.List[*IFace]
+}
+
+func ListIFaces() *IFaceList {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		fmt.Println("No network interface")
+		return nil
+	}
+
+	res := new(IFaceList)
+	for _, i := range ifaces {
+		iface := &IFace{
+			Name:         i.Name,
+			MTU:          i.MTU,
+			Flags:        i.Flags.String(),
+			HardwareAddr: i.HardwareAddr.String(),
+			Addrs:        NewStringList(),
+		}
+
+		if addrs, err := i.Addrs(); err == nil {
+			for _, addr := range addrs {
+				iface.Addrs.Add(addr.String())
+			}
+		}
+
+		if addrs, err := i.MulticastAddrs(); err == nil {
+			for _, addr := range addrs {
+				iface.Addrs.Add(addr.String())
+			}
+		}
+
+		res.Add(iface)
+	}
+
+	return res
 }

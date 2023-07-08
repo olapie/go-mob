@@ -9,7 +9,7 @@ go.olapie.com/mob
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
-export GO111MODULE=off
+#export GO111MODULE=off
 export GOPROXY=direct
 export GOSUMDB=off
 gomobile bind -v  -target=ios -o "$IOS_FRAMEWORK" $MODULES
