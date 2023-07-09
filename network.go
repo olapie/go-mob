@@ -3,6 +3,7 @@ package mob
 import (
 	"fmt"
 	"net"
+	"sort"
 	"time"
 
 	"go.olapie.com/mob/nomobile"
@@ -64,6 +65,19 @@ type IFace struct {
 
 type IFaceList struct {
 	nomobile.List[*IFace]
+}
+
+func (l *IFaceList) Less(i, j int) bool {
+	return l.Get(i).Name < l.Get(j).Name
+}
+
+func (l *IFaceList) Swap(i, j int) {
+	a := l.List.Elements()
+	a[i], a[j] = a[j], a[i]
+}
+
+func (l *IFaceList) Sort() {
+	sort.Sort(l)
 }
 
 func ListIFaces() *IFaceList {
