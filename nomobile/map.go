@@ -3,8 +3,7 @@ package nomobile
 import (
 	"encoding/json"
 	"log"
-
-	"go.olapie.com/utils"
+	"maps"
 )
 
 type Map[K comparable, V any] struct {
@@ -43,13 +42,13 @@ func (m *Map[K, V]) Count() int {
 
 func (m *Map[K, V]) Keys() *List[K] {
 	return &List[K]{
-		elements: utils.GetMapKeys(m.m),
+		elements: maps.Keys(m.m),
 	}
 }
 
 func (m *Map[K, V]) Clone() *Map[K, V] {
 	return &Map[K, V]{
-		m: utils.CloneMap(m.m),
+		m: maps.Clone(m.m),
 	}
 }
 

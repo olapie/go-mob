@@ -9,7 +9,7 @@ require (
 	go.olapie.com/security v0.1.2
 	go.olapie.com/times v1.0.3
 	go.olapie.com/types v1.0.11
-	go.olapie.com/utils v0.1.21
+	go.olapie.com/utils v0.2.5
 )
 
 require (
