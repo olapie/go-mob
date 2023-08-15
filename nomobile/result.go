@@ -2,9 +2,9 @@ package nomobile
 
 import (
 	"errors"
+	"go.olapie.com/ola/errorutil"
 
 	"go.olapie.com/types"
-	"go.olapie.com/utils"
 )
 
 type Result[T any] struct {
@@ -71,6 +71,6 @@ func ErrorResult[T any](err error) *Result[T] {
 		return res
 	}
 
-	res.err = types.NewError(utils.GetErrorCode(err), err.Error())
+	res.err = types.NewError(errorutil.GetCode(err), err.Error())
 	return res
 }

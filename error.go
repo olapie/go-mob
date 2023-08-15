@@ -4,8 +4,8 @@ import (
 	"errors"
 	"reflect"
 
+	"go.olapie.com/ola/errorutil"
 	"go.olapie.com/types"
-	"go.olapie.com/utils"
 )
 
 type Error types.Error
@@ -42,6 +42,6 @@ func ToError(err error) *Error {
 		return e
 	}
 
-	code := utils.GetErrorCode(err)
+	code := errorutil.GetCode(err)
 	return NewError(code, err.Error())
 }

@@ -2,10 +2,9 @@ package mob
 
 import (
 	"github.com/gabriel-vasile/mimetype"
+	"go.olapie.com/ola/headers"
 	"mime"
 	"strings"
-
-	"go.olapie.com/rpcx/httpx"
 )
 
 func IsTextFile(f FileInfo) bool {
@@ -25,7 +24,7 @@ func IsAudioFile(f FileInfo) bool {
 }
 
 func IsMIMEText(t string) bool {
-	return httpx.IsMimeText(t)
+	return headers.IsMimeText(t)
 }
 
 func IsMIMEImage(t string) bool {

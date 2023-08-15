@@ -1,12 +1,12 @@
 package mob
 
 import (
+	"go.olapie.com/ola/urlutil"
 	"net/mail"
 	"strings"
 	"unicode"
 
 	"go.olapie.com/times"
-	"go.olapie.com/utils"
 )
 
 func IsEmailAddress(s string) bool {
@@ -15,7 +15,7 @@ func IsEmailAddress(s string) bool {
 }
 
 func IsURL(s string) bool {
-	return utils.IsURL(s)
+	return urlutil.IsURL(s)
 }
 
 func IsDate(s string) bool {

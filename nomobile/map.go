@@ -41,8 +41,12 @@ func (m *Map[K, V]) Count() int {
 // Methods below are not supported by gomobile
 
 func (m *Map[K, V]) Keys() *List[K] {
+	keys := make([]K, 0, len(m.m))
+	for k := range m.m {
+		keys = append(keys, k)
+	}
 	return &List[K]{
-		elements: maps.Keys(m.m),
+		elements: keys,
 	}
 }
 
