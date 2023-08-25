@@ -103,7 +103,7 @@ func (c *AuthErrorChecker) Check(err error) {
 		return
 	}
 
-	code := ToError(err).Code()
+	code := ToError(err).Code
 	if code == http.StatusUnauthorized {
 		go c.h.NeedSignIn()
 	}

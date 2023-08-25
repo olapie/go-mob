@@ -2,7 +2,7 @@ package mob
 
 import (
 	"github.com/gabriel-vasile/mimetype"
-	"go.olapie.com/ola/headers"
+	"go.olapie.com/ola/mimetypes"
 	"mime"
 	"strings"
 )
@@ -24,7 +24,7 @@ func IsAudioFile(f FileInfo) bool {
 }
 
 func IsMIMEText(t string) bool {
-	return headers.IsMimeText(t)
+	return mimetypes.IsText(t)
 }
 
 func IsMIMEImage(t string) bool {

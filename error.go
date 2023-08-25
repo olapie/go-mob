@@ -2,30 +2,28 @@ package mob
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 
 	"go.olapie.com/ola/errorutil"
-	"go.olapie.com/types"
 )
 
-type Error types.Error
+type Error struct {
+	Code    int    `json:"code,omitempty"`
+	Message string `json:"message,omitempty"`
+}
 
 var _ error = (*Error)(nil)
 
 func NewError(code int, message string) *Error {
-	return (*Error)(types.NewError(code, message))
-}
-
-func (e *Error) Code() int {
-	return (*types.Error)(e).Code()
-}
-
-func (e *Error) Message() string {
-	return (*types.Error)(e).Message()
+	return &Error{
+		Code:    code,
+		Message: message,
+	}
 }
 
 func (e *Error) Error() string {
-	return (*types.Error)(e).Error()
+	return fmt.Sprintf("%s %d", e.Message, e.Code)
 }
 
 func ToError(err error) *Error {
