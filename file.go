@@ -76,6 +76,17 @@ func GetDiskSize(path string) int64 {
 }
 
 func MustMkdir(dir string) {
+	if f, err := os.Open(dir); err == nil {
+		fi, err := f.Stat()
+		if err != nil {
+			panic(err)
+		}
+
+		if fi.IsDir() {
+			return
+		}
+		panic(dir + " is not directory")
+	}
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		log.Fatalf("Make dir: %s, %v\n", dir, err)
