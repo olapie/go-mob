@@ -14,6 +14,7 @@ type AppDirectories struct {
 }
 
 func (d *AppDirectories) MustMake() {
+	d.Normalize()
 	if d.Document != "" {
 		MustMkdir(d.Document)
 	} else {
