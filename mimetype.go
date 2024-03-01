@@ -1,10 +1,11 @@
 package mob
 
 import (
-	"github.com/gabriel-vasile/mimetype"
-	"go.olapie.com/ola/mimetypes"
 	"mime"
 	"strings"
+
+	"github.com/gabriel-vasile/mimetype"
+	"go.olapie.com/ola/mimetypes"
 )
 
 func IsTextFile(f FileInfo) bool {
