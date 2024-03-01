@@ -1,6 +1,7 @@
 package mob
 
 import (
+	"context"
 	"net/http"
 	"regexp"
 	"strings"
@@ -111,4 +112,22 @@ func (c *AuthErrorChecker) Check(err error) {
 
 func GetSizeString(n int64) string {
 	return utils.SizeToHumanReadable(n)
+}
+
+type Context struct {
+	ctx context.Context
+}
+
+func NewContext() *Context {
+	return &Context{
+		ctx: context.Background(),
+	}
+}
+
+func (c *Context) Get() context.Context {
+	return c.ctx
+}
+
+func (c *Context) Set(ctx context.Context) {
+	c.ctx = ctx
 }
