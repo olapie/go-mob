@@ -30,9 +30,11 @@ func (d *DeviceInfo) Attributes() map[string]string {
 }
 
 type AppInfo struct {
-	AppID   string `json:"id,omitempty"`
-	Name    string `json:"name,omitempty"`
-	Version string `json:"version,omitempty"`
+	//deprecated, please use BundleID
+	AppID    string `json:"id,omitempty"`
+	BundleID string `json:"bundleId,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Version  string `json:"version,omitempty"`
 }
 
 func NewAppInfo() *AppInfo {
