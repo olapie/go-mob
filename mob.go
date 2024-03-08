@@ -2,6 +2,7 @@ package mob
 
 import (
 	"context"
+	"go.olapie.com/conv"
 	"net/http"
 	"regexp"
 	"strings"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/google/uuid"
 	"go.olapie.com/times"
-	"go.olapie.com/utils"
 )
 
 type SecretManager interface {
@@ -111,7 +111,7 @@ func (c *AuthErrorChecker) Check(err error) {
 }
 
 func GetSizeString(n int64) string {
-	return utils.SizeToHumanReadable(n)
+	return conv.SizeToHumanReadable(n)
 }
 
 type Context struct {
