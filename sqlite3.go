@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
-	"go.olapie.com/dbx/sqlitex"
+	"go.olapie.com/x/xsqlite"
 )
 
 type SQLite3DB struct {
@@ -30,7 +30,7 @@ func (s *SQLite3DB) Close() {
 }
 
 func NewSQLite3DB(filename string) *SQLite3DB {
-	db, err := sqlitex.Open(filename)
+	db, err := xsqlite.Open(filename)
 	if err != nil {
 		return &SQLite3DB{
 			error: err.Error(),

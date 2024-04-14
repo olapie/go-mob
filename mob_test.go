@@ -2,9 +2,8 @@ package mob
 
 import (
 	"encoding/json"
+	"go.olapie.com/x/xtest"
 	"testing"
-
-	"go.olapie.com/utils"
 )
 
 func TestMarshalStringList(t *testing.T) {
@@ -12,11 +11,11 @@ func TestMarshalStringList(t *testing.T) {
 	l.Add("a")
 	l.Add("b")
 	data, err := json.Marshal(l)
-	utils.MustNotErrorT(t, err)
+	xtest.NoError(t, err)
 	t.Log(string(data))
 
 	var l2 StringList
 	err = json.Unmarshal(data, &l2)
-	utils.MustNotErrorT(t, err)
+	xtest.NoError(t, err)
 	t.Log(l2.Len())
 }

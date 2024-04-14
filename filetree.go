@@ -1,6 +1,7 @@
 package mob
 
 import (
+	"go.olapie.com/x/xtest"
 	"log"
 	"sort"
 	"strings"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"go.olapie.com/mob/nomobile"
-	"go.olapie.com/utils"
 )
 
 type SortFieldType = int
@@ -434,7 +434,7 @@ func NewMockFileInfo(isDir bool) FileInfo {
 		return &FileTreeNode{
 			entry: &mockFileEntry{
 				id:      uuid.NewString(),
-				name:    "dir" + utils.RandomString(10),
+				name:    "dir" + xtest.RandomString(10),
 				isDir:   true,
 				modTime: time.Now().Unix(),
 				subIDs:  []string{uuid.NewString(), uuid.NewString()},
@@ -444,7 +444,7 @@ func NewMockFileInfo(isDir bool) FileInfo {
 	return &FileTreeNode{
 		entry: &mockFileEntry{
 			id:      uuid.NewString(),
-			name:    "file" + utils.RandomString(10),
+			name:    "file" + xtest.RandomString(10),
 			modTime: time.Now().Unix(),
 		},
 	}

@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"go.olapie.com/conv"
 	"go.olapie.com/times"
+	"go.olapie.com/x/xconv"
 )
 
 type SecretManager interface {
@@ -111,7 +111,7 @@ func (c *AuthErrorChecker) Check(err error) {
 }
 
 func GetSizeString(n int64) string {
-	return conv.SizeToHumanReadable(n)
+	return xconv.SizeToHumanReadable(n)
 }
 
 type Context struct {

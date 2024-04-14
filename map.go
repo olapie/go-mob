@@ -2,15 +2,15 @@ package mob
 
 import (
 	"go.olapie.com/mob/nomobile"
-	"go.olapie.com/types"
+	"go.olapie.com/x/xtype"
 )
 
 type Map struct {
-	m types.M
+	m xtype.M
 }
 
 func NewMap() *Map {
-	return &Map{m: types.M{}}
+	return &Map{m: xtype.M{}}
 }
 
 func (m *Map) GetInt64(key string) int64 {

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
-	"go.olapie.com/ola/mimetypes"
+	"go.olapie.com/x/xmime"
 )
 
 func IsTextFile(f FileInfo) bool {
@@ -25,7 +25,7 @@ func IsAudioFile(f FileInfo) bool {
 }
 
 func IsMIMEText(t string) bool {
-	return mimetypes.IsText(t)
+	return xmime.IsText(t)
 }
 
 func IsMIMEImage(t string) bool {

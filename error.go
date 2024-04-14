@@ -3,9 +3,8 @@ package mob
 import (
 	"errors"
 	"fmt"
+	"go.olapie.com/x/xerror"
 	"reflect"
-
-	"go.olapie.com/ola/errorutil"
 )
 
 type Error struct {
@@ -40,6 +39,6 @@ func ToError(err error) *Error {
 		return e
 	}
 
-	code := errorutil.GetCode(err)
+	code := xerror.GetCode(err)
 	return NewError(code, err.Error())
 }

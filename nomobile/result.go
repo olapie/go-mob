@@ -3,14 +3,12 @@ package nomobile
 import (
 	"errors"
 
-	"go.olapie.com/ola/errorutil"
-
-	"go.olapie.com/types"
+	"go.olapie.com/x/xerror"
 )
 
 type Result[T any] struct {
 	val T
-	err *types.Error
+	err *xerror.APIError
 }
 
 func (r *Result[T]) Value() T {
@@ -21,14 +19,14 @@ func (r *Result[T]) ErrorCode() int {
 	if r.err == nil {
 		return 0
 	}
-	return r.err.Code()
+	return r.err.Code
 }
 
 func (r *Result[T]) ErrorMessage() string {
 	if r.err == nil {
 		return ""
 	}
-	return r.err.Message()
+	return r.err.Message
 }
 
 func (r *Result[T]) SetValue(v T) {
@@ -37,17 +35,17 @@ func (r *Result[T]) SetValue(v T) {
 
 func (r *Result[T]) SetErrorCode(code int) {
 	if r.err == nil {
-		r.err = types.NewError(code, "")
+		r.err = xerror.NewAPIError(code, "")
 	} else {
-		r.err = types.NewError(code, r.err.Message())
+		r.err = xerror.NewAPIError(code, r.err.Message)
 	}
 }
 
 func (r *Result[T]) SetMessage(message string) {
 	if r.err == nil {
-		r.err = types.NewError(0, message)
+		r.err = xerror.NewAPIError(0, message)
 	} else {
-		r.err = types.NewError(r.err.Code(), message)
+		r.err = xerror.NewAPIError(r.err.Code, message)
 	}
 }
 
@@ -72,6 +70,6 @@ func ErrorResult[T any](err error) *Result[T] {
 		return res
 	}
 
-	res.err = types.NewError(errorutil.GetCode(err), err.Error())
+	res.err = xerror.NewAPIError(xerror.GetCode(err), err.Error())
 	return res
 }

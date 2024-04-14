@@ -3,9 +3,8 @@ package mob
 import (
 	"encoding/json"
 	"errors"
+	"go.olapie.com/x/xconv"
 	"strings"
-
-	"go.olapie.com/utils"
 )
 
 type DeviceInfo struct {
@@ -44,7 +43,7 @@ func NewDeviceInfo() *DeviceInfo {
 
 func (d *DeviceInfo) Attributes() map[string]string {
 	m := make(map[string]string)
-	err := json.Unmarshal(utils.MustJSONBytes(d), &m)
+	err := json.Unmarshal(xconv.MustToJSONBytes(d), &m)
 	if err != nil {
 		panic(err)
 	}
@@ -64,7 +63,7 @@ func NewAppInfo() *AppInfo {
 
 func (i *AppInfo) Attributes() map[string]string {
 	m := make(map[string]string)
-	err := json.Unmarshal(utils.MustJSONBytes(i), &m)
+	err := json.Unmarshal(xconv.MustToJSONBytes(i), &m)
 	if err != nil {
 		panic(err)
 	}

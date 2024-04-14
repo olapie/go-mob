@@ -5,9 +5,8 @@ import (
 	"strings"
 	"unicode"
 
-	"go.olapie.com/ola/urlutil"
-
 	"go.olapie.com/times"
+	"go.olapie.com/x/xurl"
 )
 
 func IsEmailAddress(s string) bool {
@@ -16,7 +15,7 @@ func IsEmailAddress(s string) bool {
 }
 
 func IsURL(s string) bool {
-	return urlutil.IsURL(s)
+	return xurl.IsURL(s)
 }
 
 func IsDate(s string) bool {
