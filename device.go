@@ -3,8 +3,9 @@ package mob
 import (
 	"encoding/json"
 	"errors"
-	"go.olapie.com/x/xconv"
 	"strings"
+
+	"go.olapie.com/x/xconv"
 )
 
 type DeviceInfo struct {

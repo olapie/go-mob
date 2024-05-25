@@ -2,8 +2,9 @@ package mob
 
 import (
 	"encoding/json"
-	"go.olapie.com/x/xtest"
 	"testing"
+
+	"go.olapie.com/x/xtest"
 )
 
 func TestMarshalStringList(t *testing.T) {

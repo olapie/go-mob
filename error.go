@@ -3,8 +3,9 @@ package mob
 import (
 	"errors"
 	"fmt"
-	"go.olapie.com/x/xerror"
 	"reflect"
+
+	"go.olapie.com/x/xerror"
 )
 
 type Error struct {

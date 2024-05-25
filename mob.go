@@ -12,12 +12,6 @@ import (
 	"go.olapie.com/x/xconv"
 )
 
-type SecretManager interface {
-	Get(key string) string
-	Set(key, data string) bool
-	Del(key string) bool
-}
-
 type Uptimer interface {
 	Uptime() int64
 }
@@ -71,7 +65,6 @@ func SmartLen(s string) int {
 }
 
 var whitespaceRegexp = regexp.MustCompile(`[ \t\n\r]+`)
-var bulletRegexp = regexp.MustCompile(`[\d.*]*`)
 
 // SquishString returns the string
 // first removing all whitespace on both ends of the string,
