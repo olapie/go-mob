@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/mattn/go-sqlite3 v1.14.22
 	go.olapie.com/times v1.1.3
-	go.olapie.com/x v0.1.2
+	go.olapie.com/x v0.1.3
 	go.olapie.com/x/xsqlite v0.2.0
 )
 
